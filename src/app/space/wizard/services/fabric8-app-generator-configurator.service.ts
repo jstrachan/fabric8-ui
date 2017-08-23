@@ -220,8 +220,8 @@ export class AppGeneratorConfiguratorService {
           break;
         }
         case 'named': {
-          if (this.isFirstNonValidationStep(context, execution) === true) {
-            // for first non validation step set default name to be space name
+          if (this.isNonValidationStep(context, execution) === true && !field.value) {
+            // for non validation step set default name to be space name if its empty
             if (this.currentSpace && (this.currentSpace.attributes.name || '').length > 0) {
               let spaceName = this.currentSpace.attributes.name;
               field.value = spaceName;
@@ -403,6 +403,14 @@ export class AppGeneratorConfiguratorService {
     }
     return false;
   }
+  private isNonValidationStep(context: string, execution: IAppGeneratorPair): boolean {
+    let hasProperty = this.has(execution, ['request', 'command', 'parameters', 'pipeline', 'step', 'index']);
+    if (hasProperty && execution.request.command.parameters.pipeline.step.name !== 'validate') {
+      return true;
+    }
+    return false;
+  }
+
   formatHtml(choice: IFieldChoice, source: any, index: number) {
     choice.isDefault = false;
     choice.hasIcon = false;
